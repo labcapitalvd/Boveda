@@ -2,13 +2,14 @@ services:
   ftp:
     image: fauria/vsftpd
     container_name: vsftpd
+    env_file: ./.env
     restart: unless-stopped
     networks:
       - ftp_network
     ports:
       - "4283:20"
       - "4284:21"
-      - "4285-4285:21100-21110" # Passive mode ports
+      - "4285-4286:21100-21101" # Passive mode ports
     environment:
       - FTP_USER=${FTP_USER}
       - FTP_PASS=${FTP_PASS}
@@ -29,7 +30,7 @@ services:
     networks:
       - ftp_network
     ports:
-      - "4286:80"
+      - "4287:80"
     environment:
       - FTP_SERVER=ftp
       - FTP_PORT=21
