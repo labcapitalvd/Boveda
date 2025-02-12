@@ -24,9 +24,13 @@ services:
       - ./ftpdata:/home/vsftpd
 
   ftp_web:
-    image: monstaftp/monstaftp
+    image: cardonaje/monstaftp-docker
     container_name: monstaftp
     restart: unless-stopped
+    volumes:
+      - "./license:/var/www/mftp/license"
+      - "./settings:/var/www/mftp/settings"
+      - "./languages:/var/www/mftp/application/languages"
     networks:
       - ftp_network
     ports:
