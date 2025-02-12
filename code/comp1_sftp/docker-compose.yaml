@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  ftp:
+    image: fauria/vsftpd
+    container_name: vsftpd
+    restart: unless-stopped
+    networks:
+      - ftp_network
+    ports:
+      - "4283:20"
+      - "4284:21"
+      - "4285-4285:21100-21110" # Passive mode ports
+    environment:
+      - FTP_USER=${FTP_USER}
+      - FTP_PASS=${FTP_PASS}
+      - PASV_ENABLE=YES
+      - PASV_ADDRESS=200.69.106.148
+      - PASV_MIN_PORT=21100
+      - PASV_MAX_PORT=21110
+      - LOG_STDOUT=YES
+      - FILE_OPEN_MODE=0777
+      - REVERSE_LOOKUP_ENABLE=NO
+    volumes:
+      - ./ftpdata:/home/vsftpd
+
+  ftp_web:
+    image: monstaftp/monstaftp
+    container_name: monstaftp
+    restart: unless-stopped
+    networks:
+      - ftp_network
+    ports:
+      - "4286:80"
+    environment:
+      - FTP_SERVER=ftp
+      - FTP_PORT=21
+      - FTP_TLS=false
+    depends_on:
+      - ftp
+
+  fetcher:
+    image: labcapital/apps:gesco_oap
+    container_name: fetcher
+    restart: unless-stopped
+    networks:
+      - ftp_network
+    volumes:
+      - ./ftpdata:/ftpdata # Mount FTP folder inside Python container
+    depends_on:
+      - ftp
+
+networks:
+  ftp_network:
+    driver: bridge
